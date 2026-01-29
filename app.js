@@ -16,8 +16,10 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 const homeRoutes = require('./routes/home');
+const eventRoutes = require('./routes/events');
 
 app.use('/', homeRoutes);
+app.use('/events', eventRoutes);
 
 app.use((req, res) => {
   res.status(404).render('layouts/main', { 
