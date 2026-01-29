@@ -1,0 +1,12 @@
+<div class="event-card">
+    <div class="event-image">
+        <img src="<%= event.imageUrl %>" alt="<%= event.name %>">
+    </div>
+    <div class="event-content">
+        <h3 class="event-title"><%= event.name %></h3>
+        <p class="event-date"><%= new Date(event.date).toLocaleDateString('en-US') %> at <%= event.time %></p>
+        <p class="event-venue"><%= event.venue %></p>
+        <p class="event-price">$<%= event.price %></p>
+        <a href="/events/<%= event.id %>" class="btn btn-primary">Learn More</a>
+    </div>
+</div>

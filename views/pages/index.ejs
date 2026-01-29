@@ -1,0 +1,17 @@
+<section class="hero-section">
+  <div class="container">
+      <h1 class="hero-title">Welcome to OnLive!</h1>
+      <p class="hero-subtitle">Reserve tickets to the best events</p>
+  </div>
+</section>
+
+<section class="events-section">
+  <div class="container">
+      <h2 class="section-title">Available Events</h2>
+      <div class="events-grid">
+          <% events.forEach(event => { %>
+              <%- include('../partials/event-card', { event: event }) %>
+          <% }) %>
+      </div>
+  </div>
+</section>
