@@ -1,0 +1,25 @@
+<div id="authModal" class="modal hidden">
+  <div class="modal-content">
+      <span id="closeModal" class="close">&times;</span>
+
+      <div id="authTabs">
+          <button id="loginTab" class="active">Login</button>
+          <button id="registerTab">Register</button>
+      </div>
+
+      <form id="loginForm" class="authForm">
+          <div class="error" id="loginError"></div>
+          <input type="email" name="email" placeholder="Email" required />
+          <input type="password" name="password" placeholder="Password" required />
+          <button type="submit">Login</button>
+      </form>
+
+      <form id="registerForm" class="authForm hidden">
+          <div class="error" id="registerError"></div>
+          <input type="text" name="name" placeholder="Name" required />
+          <input type="email" name="email" placeholder="Email" required />
+          <input type="password" name="password" placeholder="Password" required />
+          <button type="submit">Register</button>
+      </form>
+  </div>
+</div>

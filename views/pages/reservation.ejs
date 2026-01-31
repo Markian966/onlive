@@ -1,0 +1,196 @@
+<div class="reservation-page">
+    <div class="container">
+        <h1>Ticket Reservation</h1>
+        <h2 class="event-name"><%= event.name %></h2>
+        <p class="event-date"><%= new Date(event.date).toLocaleDateString('en-US') %> at <%= event.time %></p>
+
+        <form id="reservationForm" action="/reservations/create" method="POST" class="reservation-form">
+            <input type="hidden" name="eventId" value="<%= event.id %>">
+            
+            <div class="form-section">
+                <div class="form-section-header">
+                    <h3>Personal Information</h3>
+                    <% if (user) { %>
+                        <button type="button" id="autoFillBtn" class="btn btn-secondary btn-small">
+                            ✨ Auto Fill
+                        </button>
+                    <% } %>
+                </div>
+                
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" name="firstName" id="firstName" placeholder="First Name" required>
+                </div>
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" name="lastName" id="lastName" placeholder="Last Name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" id="email" placeholder="Email" required>
+                </div>
+            </div>
+
+            <% if (event.Sectors && event.Sectors.length > 0) { %>
+            <div class="form-section">
+                <h3>Select Seats</h3>
+                <div class="seating-chart">
+                    <div class="stage">STAGE</div>
+                    
+                    <div class="sectors">
+                        <% event.Sectors.forEach(sector => { %>
+                            <div class="sector" data-sector="<%= sector.name %>">
+                                <h4>Sector <%= sector.name %></h4>
+                                <div class="sector-seats">
+                                    <% for(let row = 1; row <= sector.rows; row++) { %>
+                                        <div class="seat-row">
+                                            <span class="row-label">Row <%= row %></span>
+                                            <div class="seats-in-row">
+                                                <% for(let seat = 1; seat <= sector.seatsPerRow; seat++) { %>
+                                                    <% const seatKey = `${sector.name}-${row}-${seat}`; %>
+                                                    <button type="button" 
+                                                            class="seat <%= reservedSeats.includes(seatKey) ? 'reserved' : 'available' %>" 
+                                                            data-sector="<%= sector.name %>" 
+                                                            data-row="<%= row %>" 
+                                                            data-seat="<%= seat %>"
+                                                            <%= reservedSeats.includes(seatKey) ? 'disabled' : '' %>>
+                                                        <%= seat %>
+                                                    </button>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+
+                    <div class="legend">
+                        <div class="legend-item">
+                            <button type="button" class="seat available demo-seat" disabled></button>
+                            <span>Available</span>
+                        </div>
+                        <div class="legend-item">
+                            <button type="button" class="seat selected demo-seat" disabled></button>
+                            <span>Selected</span>
+                        </div>
+                        <div class="legend-item">
+                            <button type="button" class="seat reserved demo-seat" disabled></button>
+                            <span>Reserved</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="selected-seats">
+                    <h3>Selected Seats</h3>
+                    <div class="seats-list" id="selectedSeatsList">
+                        <span class="no-seats-message">No seats selected</span>
+                    </div>
+                    <div class="total-price" id="totalPrice">Total: $0</div>
+                </div>
+            </div>
+            <% } %>
+
+            <input type="hidden" name="seats" id="seatsInput" value="">
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-large">Confirm Reservation</button>
+                <a href="/events/<%= event.id %>" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    window.reservedSeatsArray = <%- JSON.stringify(reservedSeats) %>;
+    window.eventPrice = <%= event.price %>;
+    window.eventId = '<%= event.id %>';
+    
+    <% if (user) { %>
+        window.currentUserData = {
+            firstName: `<%= user.firstName || '' %>`,
+            lastName: `<%= user.lastName || '' %>`,
+            email: `<%= user.email || '' %>`
+        };
+        
+        console.log('User data available:', window.currentUserData);
+        
+        const autoFillBtn = document.getElementById('autoFillBtn');
+        if (autoFillBtn) {
+            autoFillBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Auto Fill clicked!');
+                
+                const firstNameInput = document.getElementById('firstName');
+                const lastNameInput = document.getElementById('lastName');
+                const emailInput = document.getElementById('email');
+                
+                const inputsToAnimate = [];
+                const emptyFields = [];
+                
+                if (window.currentUserData.firstName && firstNameInput) {
+                    firstNameInput.value = window.currentUserData.firstName;
+                    firstNameInput.classList.remove('empty-field');
+                    const oldMessage = firstNameInput.parentElement.querySelector('.field-message');
+                    if (oldMessage) oldMessage.remove();
+                    inputsToAnimate.push({ input: firstNameInput, id: 'firstName' });
+                } else if (firstNameInput && !window.currentUserData.firstName) {
+                    emptyFields.push({ input: firstNameInput, label: 'First Name' });
+                }
+                
+                if (window.currentUserData.lastName && lastNameInput) {
+                    lastNameInput.value = window.currentUserData.lastName;
+                    lastNameInput.classList.remove('empty-field');
+                    const oldMessage = lastNameInput.parentElement.querySelector('.field-message');
+                    if (oldMessage) oldMessage.remove();
+                    inputsToAnimate.push({ input: lastNameInput, id: 'lastName' });
+                } else if (lastNameInput && !window.currentUserData.lastName) {
+                    emptyFields.push({ input: lastNameInput, label: 'Last Name' });
+                }
+                
+                if (window.currentUserData.email && emailInput) {
+                    emailInput.value = window.currentUserData.email;
+                    emailInput.classList.remove('empty-field');
+                    const oldMessage = emailInput.parentElement.querySelector('.field-message');
+                    if (oldMessage) oldMessage.remove();
+                    inputsToAnimate.push({ input: emailInput, id: 'email' });
+                }
+                
+                inputsToAnimate.forEach((item, index) => {
+                    setTimeout(() => {
+                        item.input.classList.add('auto-fill-active');
+                        item.input.style.transform = 'scale(1.05)';
+                        item.input.style.transition = 'transform 0.2s ease';
+                        setTimeout(() => {
+                            item.input.style.transform = 'scale(1)';
+                            item.input.classList.remove('auto-fill-active');
+                            item.input.classList.add('filled');
+                        }, 200);
+                    }, index * 100);
+                });
+                
+                if (emptyFields.length > 0) {
+                    emptyFields.forEach((item, index) => {
+                        setTimeout(() => {
+                            item.input.classList.remove('empty-field');
+                            const oldMessage = item.input.parentElement.querySelector('.field-message');
+                            if (oldMessage) oldMessage.remove();
+                            
+                            item.input.classList.add('empty-field');
+                            
+                            const message = document.createElement('div');
+                            message.className = 'field-message';
+                            message.innerHTML = `You can set your ${item.label} in your <a href="/profile">profile</a>`;
+                            item.input.parentElement.appendChild(message);
+                            
+                            item.input.style.transform = 'scale(1.05)';
+                            setTimeout(() => {
+                                item.input.style.transform = 'scale(1)';
+                            }, 200);
+                        }, (inputsToAnimate.length + index) * 100);
+                    });
+                }
+            });
+        }
+    <% } %>
+</script>
