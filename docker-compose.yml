@@ -1,0 +1,59 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: onlive-db
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - onlive-network
+
+  migrate:
+    build: .
+    container_name: onlive-migrate
+    env_file:
+      - .env
+    command: >
+      sh -c "npx sequelize-cli db:migrate &&
+             node scripts/databaseInit.js"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - onlive-network
+
+  app:
+    build: .
+    container_name: onlive-app
+    ports:
+    - "${ONLIVE_PORT}:3000"
+    env_file:
+      - .env
+    command: npm start
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    volumes:
+      - ./public/images:/app/public/images
+    restart: unless-stopped
+    networks:
+      - onlive-network
+
+volumes:
+  postgres_data:
+
+networks:
+  onlive-network:
