@@ -1,0 +1,35 @@
+<div class="reservation-card" data-reservation-id="<%= reservation.id %>">
+    <div class="reservation-header">
+        <h3><%= reservation.Event ? reservation.Event.name : 'Unknown Event' %></h3>
+        <p class="reservation-date">
+            <%= reservation.Event ? new Date(reservation.Event.date).toLocaleDateString('en-US') : 'N/A' %>
+        </p>
+    </div>
+    
+    <div class="reservation-body">
+        <p><strong>Name:</strong> <%= reservation.firstName %> <%= reservation.lastName %></p>
+        <p><strong>Email:</strong> <%= reservation.email %></p>
+        
+        <div class="seats-info">
+            <p><strong>Seats:</strong></p>
+            <div class="seats-list">
+                <% if (reservation.ReservationSeats && reservation.ReservationSeats.length > 0) { %>
+                    <% reservation.ReservationSeats.forEach(seat => { %>
+                        <span class="seat-tag"><%= seat.sector %>-<%= seat.row %>-<%= seat.seat %></span>
+                    <% }) %>
+                <% } else { %>
+                    <span class="no-seats-message">No seats information</span>
+                <% } %>
+            </div>
+        </div>
+        
+        <p class="total-price">Total: $<%= reservation.totalPrice %></p>
+    </div>
+    
+    <div class="reservation-actions">
+        <button class="btn btn-danger cancel-reservation-btn" 
+                data-reservation-id="<%= reservation.id %>">
+            Cancel Reservation
+        </button>
+    </div>
+</div>

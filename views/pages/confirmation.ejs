@@ -1,0 +1,72 @@
+<div class="confirmation-page">
+    <div class="container">
+        <div class="success-icon">✓</div>
+        <h1>Reservation Confirmed!</h1>
+        
+        <div class="confirmation-message">
+            <% if (isRegisteredUser) { %>
+                <p>Thank you for your reservation. Your booking has been added to your account.</p>
+                <p class="account-notice">You can view and manage your reservations in your profile.</p>
+            <% } else { %>
+                <p>Thank you for your reservation!</p>
+                <p class="email-notice">
+                    <strong>Confirmation email will be sent to:</strong><br>
+                    <span class="email-address"><%= reservation.email %></span>
+                </p>
+                <p class="register-suggestion">
+                    💡 <strong>Tip:</strong> Create an account to easily manage all your reservations in one place!
+                </p>
+            <% } %>
+        </div>
+
+        <div class="reservation-details">
+            <h2>Reservation Details</h2>
+            
+            <div class="detail-row">
+                <strong>Event:</strong> <%= event.name %>
+            </div>
+            
+            <div class="detail-row">
+                <strong>Date:</strong> <%= new Date(event.date).toLocaleDateString('en-US') %>
+            </div>
+            
+            <div class="detail-row">
+                <strong>Time:</strong> <%= event.time %>
+            </div>
+            
+            <div class="detail-row">
+                <strong>Venue:</strong> <%= event.venue %>
+            </div>
+            
+            <div class="detail-row">
+                <strong>Name:</strong> <%= reservation.firstName %> <%= reservation.lastName %>
+            </div>
+            
+            <div class="detail-row">
+                <strong>Email:</strong> <%= reservation.email %>
+            </div>
+            
+            <div class="detail-row">
+                <strong>Seats:</strong>
+                <div class="seats-list">
+                    <% if (reservation.seats && reservation.seats.length > 0) { %>
+                        <% reservation.seats.forEach(seat => { %>
+                            <span class="seat-tag"><%= seat.sector %>-<%= seat.row %>-<%= seat.seat %></span>
+                        <% }) %>
+                    <% } %>
+                </div>
+            </div>
+            
+            <div class="detail-row">
+                <strong>Total Price:</strong> <span class="total-price">$<%= reservation.totalPrice %></span>
+            </div>
+        </div>
+
+        <div class="confirmation-actions">
+            <a href="/" class="btn btn-primary">Back to Events</a>
+            <% if (isRegisteredUser) { %>
+                <a href="/profile" class="btn btn-secondary">My Profile</a>
+            <% } %>
+        </div>
+    </div>
+</div>
